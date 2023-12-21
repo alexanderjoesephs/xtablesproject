@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from .forms import CustomisedUserCreationForm
 from .models import Question, Attempt, User, Teacher, Student, Test, Admin
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -22,6 +22,7 @@ matplotlib.use('Agg')  # Set the backend to 'Agg'
 
 
 # Create your views here.
+@csrf_protect
 def myview(request):
     """
     for i in range(2,13):
@@ -48,6 +49,7 @@ def myview(request):
         is_admin = True
     return render(request, "home.html",{'is_teacher':is_teacher,'is_admin':is_admin,'is_student':is_student,'table_list':table_list})
 
+@csrf_protect
 def create_user(request):
     if Admin.objects.filter(user=request.user.id):
         form = CustomisedUserCreationForm()
@@ -80,7 +82,7 @@ def create_user(request):
                 return render(request, "create_user.html",{'form':form,'message':"couldn't create user"})
     else:
         return redirect(myview)
-    
+@csrf_protect  
 def user_login(request):
     if(request.user.is_authenticated):
         return redirect(myview)
@@ -96,6 +98,7 @@ def user_login(request):
         else:
             return render(request, 'login.html',{'message':"couldn't log in user"})
         
+@csrf_protect
 def logoutview(request):
     if request.method=="POST":
         if request.user.is_authenticated:
@@ -103,7 +106,7 @@ def logoutview(request):
         return redirect(myview)
     else:
         return redirect(myview)
-
+@csrf_protect
 def play(request):
     if request.user.is_authenticated:
         #get all times tables this user should be tested on
@@ -114,7 +117,7 @@ def play(request):
         return render(request, 'play.html',{'times_table_list':times_table_list})
     else:
         return redirect(myview)
-
+@csrf_protect
 def play_all(request):
     if request.user.is_authenticated:
         #get all times tables this user should be tested on
@@ -148,7 +151,7 @@ def create_attempt(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
-
+@csrf_protect
 def teach(request):
     if request.method == "GET":
         if Teacher.objects.filter(user = request.user):
@@ -179,7 +182,7 @@ def teach(request):
                 test.save()
         return redirect(myview)
     
-
+@csrf_protect
 def add_students(request):
     if request.method == 'GET':
         teachers = Teacher.objects.all()
@@ -204,7 +207,7 @@ def add_students(request):
             #s.classes.set(teacher_of_class)
         return redirect(myview)
 
-
+@csrf_protect
 def remove_students(request):
     if request.method == "GET":
         students = Student.objects.all()
@@ -220,7 +223,7 @@ def remove_students(request):
             s.delete()
         return redirect(myview)
 
-
+@csrf_protect
 def stats(request):
     if not Teacher.objects.filter(user=request.user.id):
         return redirect(myview)
@@ -233,7 +236,7 @@ def stats(request):
         array_of_tables.append(tables)
     return render(request, 'stats.html',{'students':students,'array_of_tables':array_of_tables})
 
-
+@csrf_protect
 def student_stats(request,student):
     if not Teacher.objects.filter(user=request.user.id):
         return redirect(myview)
@@ -331,7 +334,7 @@ def student_stats(request,student):
     context = {'heatmap_image': img_str,'heatmap_image2': img_str2,'student':student,'question_list':question_list}
     return render(request, 'student_stats.html',context)
 
-
+@csrf_protect
 def flash(request,student):
 
     user_to_find = User.objects.get(username=student)
@@ -490,7 +493,7 @@ def flash(request,student):
 
     return response
 
-
+@csrf_protect
 def student_stats_set(request,student):
     if not Teacher.objects.filter(user=request.user.id):
         return redirect(myview)
@@ -602,7 +605,7 @@ def student_stats_set(request,student):
     context = {'heatmap_image': img_str,'heatmap_image2': img_str2,'student':student,'question_list':question_list}
     return render(request, 'student_stats.html',context)
 
-
+@csrf_protect
 def flash_set(request,student):
 
     user_to_find = User.objects.get(username=student)
@@ -778,7 +781,7 @@ def flash_set(request,student):
 
     return response
 
-
+@csrf_protect
 def class_flash(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="class_set_tables.pdf"'
@@ -963,7 +966,7 @@ def class_flash(request):
 
     return response
 
-
+@csrf_protect
 def class_stats(request):
     if not Teacher.objects.filter(user=request.user.id):
         return redirect(myview)
