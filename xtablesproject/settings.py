@@ -130,6 +130,5 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://web-production-8f91.up.railway.app",
-    # Add other origins if needed
+    *
 ]
