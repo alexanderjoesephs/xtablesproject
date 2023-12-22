@@ -81,7 +81,7 @@ def create_user(request):
                 return render(request, "create_user.html",{'form':form,'message':"couldn't create user"})
     else:
         return redirect(myview)
-@crsf_exempt
+@csrf_exempt
 def user_login(request):
     if(request.user.is_authenticated):
         return redirect(myview)
